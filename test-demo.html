@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset="UTF-8">
+      <title>测试使用</title>
+      <link rel="stylesheet" href="lib/css/bootstrap.css">
+      <link rel="stylesheet" href="css/style.css">
+      <script type="text/javascript" src="lib/js/jquery3.js"></script>
+      <script type="text/javascript" src="lib/js/lodash.js"></script>
+      <script type="text/javascript" src="lib/js/echarts3.js"></script>
+      <script type="text/javascript" src="lib/js/bootstrap.js"></script>
+      <script type="text/javascript" src="js/controller.js"></script>
+  </head>
+
+  <body>
+  <!--<ul>
+    <li>开发流程</li>
+    <li>1. 编写demo
+    <ol>
+    <li>增 1.阶级  2.末节点</li>
+    <li>删 1.所有节点 2.删除所有下属节点</li>
+    <li>改 2.选择节点</li>
+    <li>查 4.展示所有节点 输入名称查找节点</li>
+    </ol>
+    </li>
+    <li>2. 对选项进行包装</li>
+    <li>3. 包装为sdk</li>
+  </ul>-->
+    <div class="canvas-wrapper">
+      <div id="r-canvas" style="width: 500px;height: 500px"></div>
+
+      <div class="form-horizontal form">
+        <!---->
+        <!-- 导航按钮 -->
+          <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#add-panel" aria-controls="add-panel" role="tab" data-toggle="tab">增</a></li>
+            <li role="presentation"><a href="#delete-panel" aria-controls="delete-panel" role="tab" data-toggle="tab" id="del">删</a></li>
+            <li role="presentation"><a href="#change-panel" aria-controls="change-panel" role="tab" data-toggle="tab">改</a></li>
+            <li role="presentation"><a href="#search-panel" aria-controls="search-panel" role="tab" data-toggle="tab">查</a></li>
+          </ul>
+
+        <!-- 导航面板 -->
+          <div class="tab-content">
+            <!--新增节点面板-->
+            <div role="tabpanel" class="tab-pane active" id="add-panel">
+
+              <!--选择节点-->
+              <div class="form-group">
+                <label for="" class="col-sm-4 control-balel">请选择节点等级</label>
+                <div class="col-sm-8">
+                  <select name="" id="choiceNode" class="form-control">
+                    <!--<option value="1">1</option>-->
+                    <!--<option value="2">2</option>-->
+                    <!--<option value="3">3</option>-->
+                    <!--<option value="0">+新建层级+</option>-->
+                  </select>
+                </div>
+              </div>
+
+              <!--节点名-->
+              <div class="form-group">
+                <label for="" class="col-sm-4 control-balel">请输入节点名</label>
+                <div class="col-sm-8">
+                  <input type="text" id="nodeName" class="form-control" placeholder="请输入节点名">
+                </div>
+              </div>
+
+              <!--节点形状-->
+              <div class="form-group">
+                <label class="col-sm-4 control-balel" for="nodeSymbol">请选择节点图形表示</label>
+                <div class="col-sm-8">
+                  <select name="" id="nodeSymbol" class="form-control">
+                    <option value="circle">圆形</option>
+                    <option value="rect">矩形</option>
+                    <option value="roundRect">圆角矩形</option>
+                    <option value="triangle">三角形</option>
+                    <option value="diamond">菱形</option>
+                    <option value="pin">针型</option>
+                    <option value="arrow">箭头</option>
+                  </select>
+                </div>
+              </div>
+
+              <!--add_btn-->
+              <div>
+                <button type="submit" id="add" class="btn btn-default">提交新增</button>
+              </div>
+
+              <!--新增层次-->
+              <div id="addNewLayer">
+                <div class="form-group">
+                  <label for="" class="col-sm-4 control-balel">请输入层次名</label>
+                  <div class="col-sm-8">
+                    <input type="text" class="form-control" placeholder="请输入层次名" id="layerName">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-sm-4 control-balel" for="layerSymbol">请选择层次图形表示</label>
+                  <div class="col-sm-8">
+                    <select name="" id="layerSymbol" class="form-control">
+                      <option value="circle">圆形</option>
+                      <option value="rect">矩形</option>
+                      <option value="roundRect">圆角矩形</option>
+                      <option value="triangle">三角形</option>
+                      <option value="diamond">钻石</option>
+                      <option value="pin">菱形</option>
+                      <option value="arrow">箭头</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <button type="submit" class="btn btn-default" id="addNewLayerBtn">确定</button>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!--删除面板-->
+            <div role="tabpanel" class="tab-pane" id="delete-panel">
+              <div class="delete-text">
+                请选择点击要删除的item
+              </div>
+            </div>
+
+            <!--更改面板-->
+            <div role="tabpanel" class="tab-pane" id="change-panel">
+              <!--更改面板开始-->
+              <p>请点击要更改的 item</p>
+
+              <!--节点名-->
+              <div class="form-group">
+                <label for="" class="col-sm-4 control-balel">请输入节点名</label>
+                <div class="col-sm-8">
+                  <input type="text" id="changeNodeName" class="form-control" placeholder="请输入节点名">
+                </div>
+              </div>
+
+              <!--节点形状-->
+              <div class="form-group">
+                <label class="col-sm-4 control-balel" for="nodeSymbol">请选择节点图形表示</label>
+                <div class="col-sm-8">
+                  <select name="" id="changeNodeSymbol" class="form-control">
+                    <option value="circle">圆形</option>
+                    <option value="rect">矩形</option>
+                    <option value="roundRect">圆角矩形</option>
+                    <option value="triangle">三角形</option>
+                    <option value="diamond">钻石</option>
+                    <option value="pin">菱形</option>
+                    <option value="arrow">箭头</option>
+                  </select>
+                </div>
+              </div>
+
+              <!--确定按钮-->
+              <div>
+                <button type="submit" id="change" class="btn btn-default">确定</button>
+              </div>
+
+              <!--默认展示-->
+              <div class="show-default">请点击选择需要更改的按钮</div>
+
+              <!--更改面板结束-->
+            </div>
+
+            <!--查找面板-->
+            <div role="tabpanel" class="tab-pane" id="search-panel">
+
+              <div class="form-group">
+                <label for="" class="col-sm-4 control-balel">请输入要查找的节点</label>
+                <div class="col-sm-8">
+                  <input type="text" id="searchNodeName" class="form-control" placeholder="请输入节点名">
+                </div>
+              </div>
+
+              <!--确定按钮-->
+              <div>
+                <button type="submit" id="select" class="btn btn-default">确定</button>
+              </div>
+
+            </div>
+          </div>
+
+      </div>
+    </div>
+  </body>
+
+</html>

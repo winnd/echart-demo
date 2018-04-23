@@ -1,0 +1,13 @@
+
+ul {float: left;}
+
+.canvas-wrapper {display: flex;}
+
+#r-canvas {flex: 0 0 500px;float: left;border: 5px solid #ffff00;}
+
+.form {float: left;flex: 1;max-width: 450px;padding-top: 100px; background: khaki}
+
+#addNewLayer {background: chartreuse}
+
+/*bootstrap 样式修正*/
+.nav-tabs {width: 100%;}

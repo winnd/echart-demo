@@ -76,10 +76,10 @@ $(document).ready(function () {
           }
         },       // item上的标签样式
         data: [
-          {value: 20, name: '101.133.8.88', category: 0, symbol: 'rect', symbolSize: 80},
-          {value: 20, name: "第二个", category: 1, symbol: 'roundRect', symbolSize: 60},
-          {value: 20, name: '第三个', category: 2, symbol: 'roundRect', symbolSize: 60},
-          {value: 20, name: '第四个', category: 1, symbol: 'roundRect', symbolSize: 60},
+          {id: 'id1', value: 20, name: '101.133.8.88', category: 0, symbol: 'rect', symbolSize: 80},
+          {id: 'id2', value: 20, name: "第二个", category: 1, symbol: 'roundRect', symbolSize: 60},
+          {id: 'id3', value: 20, name: '第三个', category: 2, symbol: 'roundRect', symbolSize: 60},
+          {id: 'id4', value: 20, name: '第四个', category: 1, symbol: 'roundRect', symbolSize: 60},
         ],        // 选项设置 - 数据
         categories: [
           {name: '第一级别', symbol: 'rect'},
@@ -87,10 +87,10 @@ $(document).ready(function () {
           {name: '第三级别', symbol: 'rect'}
         ],  // 选项设置(层级) - 节点分类的类目             译:类别 和series绑定
         links: [
-          {source: "101.133.8.88", target: "第二个", /*label: {normal: {show: true}}*/},
-          {source: "第二个", target: "第三个"},
-          {source: '第三个', target: '第四个'},
-          {source: '第四个', target: '101.133.8.88'},
+          {source: "id1", target: "id2", /*label: {normal: {show: true}}*/},
+          {source: "id2", target: "id3"},
+          {source: 'id3', target: 'id4'},
+          {source: 'id4', target: 'id1'},
         ],
         lineStyle: {
           normal: {
@@ -104,14 +104,13 @@ $(document).ready(function () {
       }],      //  整体外观样式设置                    译:系列
     }
 
-    // 此列作为参考存在
-    // this.categories = this.option.series[0].categories    // 层级
-    // this.itemList = this.option.series[0].data            // 显示的单元
-    // this.legendData = this.option.legend.data             // 按钮
-
     this.连接点 = []
 
-    this.init(arg)
+    this.init(arg)      // 初始化脚本
+
+    this.initDom()      // 初始化页面
+
+    this.tmpId = this.option.series[0].data.length    // 作为id序列 防止删除再增加时出错
   }
 
   eChartDemo.prototype = {
@@ -120,31 +119,36 @@ $(document).ready(function () {
     init (arg) {
       myChart.setOption(this.option)
 
-      $('#addNewLayer').hide()
-      this.initSelectBox()            // 下拉选择框
       this.add()
 
       $('a[data-toggle="tab"]').on('shown.bs.tab', (e) => {
+        myChart.off('click')
+        this.initClickedStyle()
         switch ($.trim(e.target.innerText)) {
           case '删':
-            myChart.off('click')
             this.deleteItem()
             break
           case '增':
-            myChart.off('click')
             this.add()
             break
           case '改':
-            myChart.off('click')
             this.change()
             break
           case '查':
-            myChart.off('click')
             this.search()
             break
         }
       })
 
+    }, // init结束
+
+    initDom () {
+
+      $('#addNewLayer').hide()
+
+      this.initSelectBox()  // 初始化下拉框
+
+      this.choiceNode()        // 选择节点 <selectBox>
     },
 
     initSelectBox () {
@@ -156,12 +160,31 @@ $(document).ready(function () {
       }
       html += `<option value="0">+新建层级+</option>`
       $('#choiceNode').html(html).val('1')
+    },  // 初始化<selectBox>
+
+    choiceNode () {
+      $('#choiceNode').change((e) => {
+        var mNodeType = $('#choiceNode').val()
+        if (mNodeType === '0') {
+          $('#addNewLayer').show()
+        }
+      })
+    },     // 选择节点 <selectBox>(包括新增
+
+    initClickedStyle () {
+      var _option = myChart.getOption()       // 获取实例
+      var _itemList = _option.series[0].data
+
+      for (var i = 0; i < _itemList.length; i++) {
+        _itemList[i].itemStyle = this.initStyle
+      }
+
+      myChart.setOption(_option)
     },
 
     add () {
       this.addNewNode()        // 新增节点
       this.addNewLayer()       // 新增层级
-      this.choiceNode()        // 选择节点 <selectBox>
       this.linkTwoPoint()      // 连接两个点
     },          // 增
 
@@ -172,16 +195,17 @@ $(document).ready(function () {
         var newNodeObj = {id: 0, value: 20, name: '', category: '', symbol: '', symbolSize: 60}
 
         newNodeObj.name = $('#nodeName').val()
-        if (_.find(itemList, ['name', newNodeObj.name])) {    // 拦截已存在的name
-          $('#modal').modal({keyboard: true})
-          return
-        }
         newNodeObj.category = parseInt($('#choiceNode').val()) - 1
         newNodeObj.symbol = $('#nodeSymbol').val()
+        newNodeObj.id = 'id' + (this.tmpId + 1)
+
         itemList.push(newNodeObj)
+
+        this.tmpId++
+
         myChart.setOption(_option)
       })
-    },    // 新增节点
+    },
 
     addNewLayer () {
       $('#addNewLayerBtn').off('click').on('click', (e) => {
@@ -196,39 +220,35 @@ $(document).ready(function () {
         _option.legend[0].data.push(newLegendData)
 
         myChart.setOption(_option)
+
         $('#addNewLayer').hide()
         this.initSelectBox()
       })
-    },    // 新增层级
-
-    choiceNode () {
-      $('#choiceNode').change((e) => {
-        var mNodeType = $('#choiceNode').val()
-        if (mNodeType === '0') {
-          $('#addNewLayer').show()
-        }
-      })
-    },    // 选择节点 <selectBox>(包括新增
+    },      // 新增层级
 
     linkTwoPoint () {
       myChart.on('click', (e) => {
         var itemName = e.data.name
-        var _option = myChart.getOption()       // 获取实例
+        var itemId = e.data.id
+        var _option = myChart.getOption()
         var _itemList = _option.series[0].data
 
         if (this.连接点.length === 1) {
-          var a = _.find(_itemList, ['name', this.连接点[0]])     // 第一个点是否已被删除
-          if (!a) {
-            this.连接点 = []
-          }
+          /* var a = _.find(_itemList, ['id', this.连接点[0]])     // 第一个点是否已被删除
+                    if (!a) {
+                      this.连接点 = []
+                    }*/
+          _.find(_itemList, ['id', this.连接点[0]]) ? '' : this.连接点 = []
         }
 
-        this.连接点.push(itemName)
+        this.连接点.push(itemId)
 
-        var item = _.find(_itemList, ['name', itemName])
-        if (item) {
-          item.itemStyle = this.clickedStyle    // 选中改变样式
-        }
+        /* var item = _.find(_itemList, ['id', itemId])    // 获取点击的item
+                if (item) {
+                  item.itemStyle = this.clickedStyle    // 选中改变样式
+                }*/
+        item = _.find(_itemList, ['id', itemId])
+        item ? item.itemStyle = this.clickedStyle : ''
 
         myChart.setOption(_option)
 
@@ -237,7 +257,7 @@ $(document).ready(function () {
           this.连接点 = []
         }
       })
-    },   // 连接两点
+    },     // 连接两点
 
     linkPoint (连接点) {
       var newLink = {source: 连接点[0], target: 连接点[1]}
@@ -256,60 +276,17 @@ $(document).ready(function () {
       ;(async () => {
         setTimeout(() => {
           for (var i = 0; i < 连接点.length; i++) {
-            var item = _.find(_itemList, ['name', 连接点[i]])
-            if (item) {
-              item.itemStyle = this.initStyle            // 不是最新的option 可能会出现bug
-            }
+            /*var item = _.find(_itemList, ['id', 连接点[i]])
+                        if (item) {
+                          item.itemStyle = this.initStyle
+                        }*/
+            var item = _.find(_itemList, ['id', 连接点[i]])
+            item ? item.itemStyle = this.initStyle : ''
           }
           myChart.setOption(_option)
         }, 1000)
       })()
     },
-
-    change () {
-      myChart.on('click', (e) => {
-        var currentItem
-        var _option = myChart.getOption()
-        var _itemList = _option.series[0].data
-        var _links = _option.series[0].links
-
-        $('#changeNodeName').val(e.data.name)
-        $('#changeNodeSymbol').val(e.data.symbol)
-        var sourceLinkItem = _.find(_links, ['source', e.data.name])
-        var targetLinkItem = _.find(_links, ['target', e.data.name])
-
-        currentItem = _.find(_itemList, ['name', e.data.name])
-
-        $('#change').off('click').on('click', () => {
-          currentItem.name = $('#changeNodeName').val()
-          currentItem.symbol = $('#changeNodeSymbol').val()
-          console.log(sourceLinkItem)
-          sourceLinkItem.source = e.data.name
-
-          // _itemList.splice(parseInt(e.dataIndex), 1, currentItem)
-          myChart.setOption(_option)
-        })
-      })
-    },           // 改
-
-    search () {
-      $('#select').off('click').on('click', (e) => {
-        var currentItem
-        var _option = myChart.getOption()
-        var _itemList = _option.series[0].data
-
-        console.log(myChart.getOption())
-        for (var i = 0; i < _itemList.length; i++) {
-          var index = _itemList[i]
-          _itemList[i].itemStyle = this.initStyle
-        }
-
-        var index = _.findIndex(_itemList, ['name', $('#searchNodeName').val()])
-
-        _itemList[index].itemStyle = this.clickedStyle
-        myChart.setOption(_option)
-      })
-    },           // 查
 
     deleteItem () {
       myChart.on('click', (e) => {
@@ -318,19 +295,81 @@ $(document).ready(function () {
         var _data = _option.series[0].data
         var _links = _option.series[0].links
 
-        _data = _.reject(_data, ['name', e.data.name])       // 删除点
-        _links = _.reject(_links, ['source', e.data.name])    // 删除{source:,target:}
-        _links = _.reject(_links, ['target', e.data.name])    // 断开连接
+        _data = _.reject(_data, ['id', e.data.id])       // 删除点
+        _links = _.reject(_links, ['source', e.data.id])    // 删除{source:,target:}
+        _links = _.reject(_links, ['target', e.data.id])    // 断开连接
 
         _option.series[0].data = _data
         _option.series[0].links = _links
 
         myChart.setOption(_option)
       })
-    }        // 删
+    },       // 删
+
+    change () {
+      myChart.on('click', (e) => {
+        debugger
+        var currentItem
+        var _option = myChart.getOption()
+        var _itemList = _option.series[0].data
+        var _links = _option.series[0].links
+
+        $('#changeNodeName').val(e.data.name)
+        $('#changeNodeSymbol').val(e.data.symbol)
+        var sourceLinkItem = _.find(_links, ['source', e.data.id])
+        var targetLinkItem = _.find(_links, ['target', e.data.id])
+
+        currentItem = _.find(_itemList, ['id', e.data.id])
+
+        $('#change').off('click').on('click', () => {
+          currentItem.name = $('#changeNodeName').val()
+          currentItem.symbol = $('#changeNodeSymbol').val()
+          sourceLinkItem && sourceLinkItem.source ? sourceLinkItem.source = e.data.id : ''
+
+          // _itemList.splice(parseInt(e.dataIndex), 1, currentItem)
+          myChart.setOption(_option)
+        })
+      })
+    },           // 改
+
+    searchItem () {
+      var _option = myChart.getOption()
+      var _itemList = _option.series[0].data
+      var name
+
+      $('#select').off('click').on('click', (e) => {
+        myChart.on('click', (e) => {
+          name = e.data.name
+        })
+
+        $('#searchNodeName').off('change').on('change', (e) => {
+          name = $('#searchNodeName').val()
+        })
+
+        var _itemList = this.search(_itemList, name)
+
+        _itemList = _tmpItemList
+
+        myChart.setOption(_option)
+      })
+    },
+
+    search (_itemList, name) {
+      $('#select').off('click').on('click', (e) => {
+        var items = _.filter(_itemList, ['name', name])
+
+        for (var i = 0; i < items.length; i++) {
+          items[i].itemStyle = this.clickedStyle
+        }
+
+        return _itemList
+
+        // myChart.setOption(_option)
+      })
+    },           // 查
+
   }
 
-  $(function () {
-    var demo = new eChartDemo('参数')
-  })
+  $(function () {var demo = new eChartDemo('参数')})
+
 })

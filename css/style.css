@@ -1,11 +1,11 @@
 
 ul {float: left;}
 
-.canvas-wrapper {display: flex;}
+.canvas-wrapper {display: flex;flex-flow: column;}
 
-#r-canvas {flex: 0 0 500px;float: left;border: 5px solid #ffff00;}
+#r-canvas {flex: 0 0 400px;float: left;border: 5px solid #ffff00;}
 
-.form {float: left;flex: 1;max-width: 450px;padding-top: 100px; background: khaki}
+.form {float: left;flex: 1;max-width: 450px; background: khaki}
 
 #addNewLayer {background: chartreuse}
 
